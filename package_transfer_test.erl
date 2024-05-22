@@ -1,21 +1,14 @@
 
 
 -module(package_transfer_test).
-
+-import(package_transfer,[start/0,start/3,stop/0,add_package/2]).
 %% Only include the eunit testing library
 %% in the compiled code if testing is 
 %% being done.
+
 -ifdef(TEST).
 -include_lib("eunit/include/eunit.hrl").
--endif.
-
-
-
--ifdef(EUNIT).
-%%
-%% Unit tests go here. 
-%%
--include_lib("eunit/include/eunit.hrl").
+-include_lib("meck/include/meck.hrl").
 
 
 test_transfer() ->

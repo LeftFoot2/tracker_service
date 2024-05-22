@@ -18,7 +18,7 @@
 -endif.
 
 %% API
--export([start/0,start/3,stop/0]).
+-export([start/0,start/3,stop/0,add_package/2]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -28,6 +28,8 @@
 %%%===================================================================
 %%% API
 %%%===================================================================
+
+
 
 %%--------------------------------------------------------------------
 %% @doc
@@ -39,7 +41,8 @@
 %%--------------------------------------------------------------------
 -spec start() -> {ok, pid()} | ignore | {error, term()}.
 start() ->
-    gen_server:start_link({local, package_transfer}, ?MODULE, [], []).
+    Starting_packages = [{"4","101"},{"5","301"}],
+    gen_server:start_link({local, package_transfer}, ?MODULE, Starting_packages, []).
 %%--------------------------------------------------------------------
 %% @doc
 %% Starts a server using this module and registers the server using
@@ -67,6 +70,12 @@ stop() -> gen_server:call(?MODULE, stop).
 
 %% Any other API functions go here.
 
+add_package(Package_ID, Location_ID) ->
+    gen_server:cast(?MODULE, {add_pckg, Package_ID, Location_ID}).
+
+
+
+
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
@@ -79,8 +88,9 @@ stop() -> gen_server:call(?MODULE, stop).
 %% @end
 %%--------------------------------------------------------------------
 -spec init(term()) -> {ok, term()}|{ok, term(), number()}|ignore |{stop, term()}.
-init([]) ->
-        {ok,replace_up}.
+init(List) ->
+        Map = lists:foldl(fun({Key, Value}, AccMap) -> maps:put(Key, Value, AccMap) end, #{}, List),
+        {ok, Map}.
 %%--------------------------------------------------------------------
 %% @private
 %% @doc
@@ -112,6 +122,10 @@ handle_call(stop, _From, _State) ->
 -spec handle_cast(Msg::term(), State::term()) -> {noreply, term()} |
                                   {noreply, term(), integer()} |
                                   {stop, term(), term()}.
+
+handle_cast({add_pckg, Package_ID, Location_ID}, State) ->
+    NewState = maps:put(Package_ID, Location_ID, State),
+    {noreply, NewState};
 handle_cast(_Msg, State) ->
     {noreply, State}.
     
@@ -161,5 +175,24 @@ code_change(_OldVsn, State, _Extra) ->
 -ifdef(EUNIT).
 %%
 %% Unit tests go here. 
+%%
+-include_lib("eunit/include/eunit.hrl").
+
+
+silly_test_() ->
+    {setup,
+     fun() -> %this setup fun is run once befor the tests are run. If you want setup and teardown to run for each test, change {setup to {foreach
+        meck:new(db_api),
+        meck:expect(db_api, package_transfer, fun(Key,Names,PID) -> worked end)
+        
+     end,
+     fun(_) ->%This is the teardown fun. Notice it takes one, ignored in this example, parameter.
+        meck:unload(db_api)
+     end,
+    [%This is the list of tests to be generated and run.
+        ?_assertEqual({noreply, NewState},
+                            silly_mock:handle_call({package_transfer,<<"sally">>,[]}, some_from_pid, some_Db_PID))
+    ]}.
+
 %%
 -endif.

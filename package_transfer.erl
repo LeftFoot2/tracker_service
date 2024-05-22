@@ -105,13 +105,10 @@ init(List) ->
                                   {noreply, term(), integer()} |
                                   {stop, term(), term(), integer()} | 
                                   {stop, term(), term()}.
-handle_call(Request, From, State) ->
-        {reply,replace_started,State};
 handle_call(stop, _From, _State) ->
-        {stop,normal,
-                replace_stopped,
-          down}. %% setting the server's internal state to down
-
+        {stop,normal,replace_stopped,down}. %% setting the server's internal state to down
+% handle_call(Request, From, State) ->
+%         {reply,replace_started,State};
 %%--------------------------------------------------------------------
 %% @private
 %% @doc
@@ -179,7 +176,7 @@ code_change(_OldVsn, State, _Extra) ->
 -include_lib("eunit/include/eunit.hrl").
 
 
-silly_test_() ->
+test_transfer() ->
     {setup,
      fun() -> %this setup fun is run once befor the tests are run. If you want setup and teardown to run for each test, change {setup to {foreach
         meck:new(db_api),
@@ -191,7 +188,7 @@ silly_test_() ->
      end,
     [%This is the list of tests to be generated and run.
         ?_assertEqual({noreply, NewState},
-                            silly_mock:handle_call({package_transfer,<<"sally">>,[]}, some_from_pid, some_Db_PID))
+                            transfer_test:handle_call({package_transfer,<<"3">>,[]}, some_from_pid, some_Db_PID))
     ]}.
 
 %%

@@ -1,5 +1,5 @@
 -module(db_api).
--export([put_friends_for/3, add_package/3]).
+-export([put_friends_for/3, add_package_for/3]).
 
 
 put_friends_for(Name_key,Friends,Pid)->

@@ -1,5 +1,4 @@
 %% package transfer gen_server and tests
-%% I Was Here
 
 -module(package_transfer).
 -behaviour(gen_server).
@@ -85,6 +84,9 @@ init([]) ->
                                   {noreply, term(), integer()} |
                                   {stop, term(), term(), integer()} | 
                                   {stop, term(), term()}.
+
+handle_call({get_location, Package_ID}, _From, Db_PID) ->
+    {reply, db_api:get_package(Package_ID,Db_PID),Db_PID};
 handle_call({friends_for,Name_key,Friends_value}, _From, Db_PID) ->
         case Name_key =:= <<"">> of
             true ->
@@ -105,8 +107,12 @@ handle_call(stop, _From, _State) ->
 %% @end
 %%--------------------------------------------------------------------
 -spec handle_cast(Msg::term(), State::term()) -> {noreply, term()} |
-                                  {noreply, term(), integer()} |
-                                  {stop, term(), term()}.
+    {noreply, term(), integer()} |
+    {stop, term(), term()}.
+
+handle_cast({transfer, Package_ID, Location_ID}, Db_PID) ->
+    db_api:put_package(Package_ID, Location_ID, Db_PID),
+    {noreply, Db_PID};
 handle_cast(_Msg, State) ->
     {noreply, State}.
     
@@ -164,20 +170,25 @@ transfer_test_() ->
     {setup,
      fun() -> %this setup fun is run once befor the tests are run. If you want setup and teardown to run for each test, change {setup to {foreach
         meck:new(db_api),
-        meck:expect(db_api, put_friends_for, fun(Key,Names,PID) -> worked end)
+        meck:expect(db_api, put_package, fun(Package_ID, Location_ID, Pid) -> worked end)
         
      end,
      fun(_) ->%This is the teardown fun. Notice it takes one, ignored in this example, parameter.
         meck:unload(db_api)
      end,
     [%This is the list of tests to be generated and run.
-        ?_assertEqual({reply,worked,some_Db_PID},
-                            package_transfer:handle_call({friends_for,<<"sally">>,[]}, some_from_pid, some_Db_PID)),
-        ?_assertEqual({reply,worked,some_Db_PID},
-                            package_transfer:handle_call({friends_for,<<"fred">>,[<<"sue">>,<<"joe">>]}, some_from_pid, some_Db_PID)
-                                ),
-        ?_assertEqual({reply,{fail,empty_key},some_Db_PID},
-                            package_transfer:handle_call({friends_for,<<"">>,[]}, some_from_pid, some_Db_PID))
+        % add the packages into the mock database
+        package_transfer:handle_cast({transfer,<<"4">>,"Detroit"}, some_from_pid, some_Db_PID),
+        package_transfer:handle_cast({transfer,<<"5">>,"Truck101"}, some_from_pid, some_Db_PID),
+        package_transfer:handle_cast({transfer,<<"">>,""}, some_from_pid, some_Db_PID),
+
+        % use the check location call function to check where the packages are
+        ?_assertEqual({reply,"Detroit",some_Db_PID},
+                            package_transfer:handle_call({check_location, <<"4">>}, some_from_pid, some_Db_PID)),
+        ?_assertEqual({reply,"Truck101",some_Db_PID},
+                            package_transfer:handle_call({check_location, <<"5">>}, some_from_pid, some_Db_PID)),
+        ?_assertEqual({reply,fail,some_Db_PID},
+                            package_transfer:handle_call({check_location, <<"">>}, some_from_pid, some_Db_PID))
     ]}.
     
 -endif.

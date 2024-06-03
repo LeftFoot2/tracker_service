@@ -104,14 +104,14 @@ handle_call(stop, _From, _State) ->
 %%TRANSFER
 % If either key is empty, it doesn't put_package
 handle_cast({update, <<"">>, _Latitude, _Longitude}, Db_PID) ->
-    {noreply, Db_PID};
+    {noreply,failed,Db_PID};
 handle_cast({update, _Location_ID, <<"">>, _Longitude}, Db_PID) ->
-    {noreply, Db_PID};
+    {noreply,failed,Db_PID};
 handle_cast({update, _Location_ID, _Latitude, <<"">>}, Db_PID) ->
-    {noreply, Db_PID};
+    {noreply,failed,Db_PID};
 handle_cast({update, Location_ID, Latitude, Longitude}, Db_PID) ->
     db_api:put_location(Location_ID, Latitude, Longitude, Db_PID),
-    {noreply, Db_PID};
+    {noreply, worked, Db_PID};
 
 handle_cast(_Msg, State) ->
     {noreply, State}.
@@ -181,11 +181,14 @@ transfer_test_() ->
      [
          % Add the packages into the mock database
          fun() ->
-             location_update:handle_cast({update, <<"Truck101">>, <<"Detroit">>}, some_Db_PID),
-             location_update:handle_cast({update, <<"5">>, <<"Truck101">>}, some_Db_PID),
-             location_update:handle_cast({update, <<"6">>, <<"Chicago">>}, some_Db_PID),
-             location_update:handle_cast({update, <<"">>, <<"">>}, some_Db_PID),
-             ok
+            ?assertEqual({noreply,worked,some_Db_PID},
+                location_update:handle_cast({update, <<"Truck101">>, <<"67.2">>, <<"57.3">>}, some_Db_PID)),
+             ?assertEqual({noreply,failed,some_Db_PID},
+                location_update:handle_cast({update, <<"Plane201">>, <<"67.3">>, <<"">>}, some_Db_PID)),
+             ?assertEqual({noreply,failed,some_Db_PID},
+                location_update:handle_cast({update, <<"Ship301">>, <<"">>, <<"57.5">>}, some_Db_PID)),
+             ?assertEqual({noreply,failed,some_Db_PID},
+                location_update:handle_cast({update, <<"">>, <<"67.5">>, <<"57.2">>}, some_Db_PID))
          end
      ]}.
 

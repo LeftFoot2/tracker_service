@@ -192,25 +192,25 @@ transfer_test_() ->
      [
          % Add the packages into the mock database
          fun() ->
-             package_transfer:handle_cast({deliver, <<"4">>}, some_Db_PID),
-             package_transfer:handle_cast({deliver, <<"5">>}, some_Db_PID),
-             package_transfer:handle_cast({deliver, <<"6">>}, some_Db_PID),
-             package_transfer:handle_cast({deliver, <<"">>}, some_Db_PID),
+             package_delivered:handle_cast({deliver, <<"4">>}, some_Db_PID),
+             package_delivered:handle_cast({deliver, <<"5">>}, some_Db_PID),
+             package_delivered:handle_cast({deliver, <<"6">>}, some_Db_PID),
+             package_delivered:handle_cast({deliver, <<"">>}, some_Db_PID),
              ok
          end,
          
          % Use get location call function to check where the packages are. Only for unit testing!
          fun() ->
              ?assertEqual({reply, <<"Delivered">>, some_Db_PID},
-                          package_transfer:handle_call({status, <<"4">>}, some_from_pid, some_Db_PID))
+                          package_delivered:handle_call({status, <<"4">>}, some_from_pid, some_Db_PID))
          end,
          fun() ->
              ?assertEqual({reply, <<"Delivered">>, some_Db_PID},
-                          package_transfer:handle_call({status, <<"5">>}, some_from_pid, some_Db_PID))
+                          package_delivered:handle_call({status, <<"5">>}, some_from_pid, some_Db_PID))
          end,
         fun() ->
              ?assertEqual({reply, {fail, empty_key}, some_Db_PID},
-                          package_transfer:handle_call({status, <<"">>}, some_from_pid, some_Db_PID))
+                          package_delivered:handle_call({status, <<"">>}, some_from_pid, some_Db_PID))
          end
      ]}.
 

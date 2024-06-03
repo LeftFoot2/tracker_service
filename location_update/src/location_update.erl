@@ -171,15 +171,7 @@ transfer_test_() ->
      fun() ->
          % This setup fun is run once before the tests are run.
          meck:new(db_api),
-         meck:expect(db_api, put_package, fun(_Package_ID, _Location_ID, _Pid) -> worked end),
-         meck:expect(db_api, get_package, fun(Package_ID, _Pid) ->
-             case Package_ID of
-                 <<"4">> -> <<"Detroit">>;
-                 <<"5">> -> <<"Truck101">>;
-                 <<"6">> -> <<"Chicago">>;
-                 _ -> fail
-             end
-         end),
+         meck:expect(db_api, put_location, fun(_Location_ID, _Latitude, _Longitude, _Pid) -> worked end),
          ok
      end,
      fun(_) ->
@@ -189,25 +181,11 @@ transfer_test_() ->
      [
          % Add the packages into the mock database
          fun() ->
-             location_update:handle_cast({transfer, <<"4">>, <<"Detroit">>}, some_Db_PID),
-             location_update:handle_cast({transfer, <<"5">>, <<"Truck101">>}, some_Db_PID),
-             location_update:handle_cast({transfer, <<"6">>, <<"Chicago">>}, some_Db_PID),
-             location_update:handle_cast({transfer, <<"">>, <<"">>}, some_Db_PID),
+             location_update:handle_cast({update, <<"Truck101">>, <<"Detroit">>}, some_Db_PID),
+             location_update:handle_cast({update, <<"5">>, <<"Truck101">>}, some_Db_PID),
+             location_update:handle_cast({update, <<"6">>, <<"Chicago">>}, some_Db_PID),
+             location_update:handle_cast({update, <<"">>, <<"">>}, some_Db_PID),
              ok
-         end,
-         
-         % Use get location call function to check where the packages are. Only for unit testing!
-         fun() ->
-             ?assertEqual({reply, <<"Detroit">>, some_Db_PID},
-                          location_update:handle_call({get_location, <<"4">>}, some_from_pid, some_Db_PID))
-         end,
-         fun() ->
-             ?assertEqual({reply, <<"Truck101">>, some_Db_PID},
-                          location_update:handle_call({get_location, <<"5">>}, some_from_pid, some_Db_PID))
-         end,
-        fun() ->
-             ?assertEqual({reply, {fail, empty_key}, some_Db_PID},
-                          location_update:handle_call({get_location, <<"">>}, some_from_pid, some_Db_PID))
          end
      ]}.
 

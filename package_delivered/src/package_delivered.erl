@@ -85,12 +85,12 @@ init([]) ->
                                   {stop, term(), term(), integer()} | 
                                   {stop, term(), term()}.
 
-handle_call({get_status, Package_ID}, _From, Db_PID) ->
+handle_call({status, Package_ID}, _From, Db_PID) ->
     case Package_ID =:= <<"">> of
             true ->
                 {reply,{fail,empty_key},Db_PID};
             _ ->
-                {reply, db_api:get_package(Package_ID,Db_PID),Db_PID}
+                {reply, db_api:get_status(Package_ID,Db_PID),Db_PID}
         end;
 handle_call(stop, _From, _State) ->
         {stop,normal,

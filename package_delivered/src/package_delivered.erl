@@ -208,6 +208,10 @@ transfer_test_() ->
              ?assertEqual({reply, <<"Delivered">>, some_Db_PID},
                           package_delivered:handle_call({status, <<"5">>}, some_from_pid, some_Db_PID))
          end,
+         fun() ->
+             ?assertEqual({reply, <<"Delivered">>, some_Db_PID},
+                          package_delivered:handle_call({status, <<"6">>}, some_from_pid, some_Db_PID))
+         end,
         fun() ->
              ?assertEqual({reply, {fail, empty_key}, some_Db_PID},
                           package_delivered:handle_call({status, <<"">>}, some_from_pid, some_Db_PID))

@@ -1,6 +1,6 @@
 %% package transfer gen_server and tests
 
--module(package_transfer).
+-module(location_update).
 -behaviour(gen_server).
 -export([]).
 
@@ -85,13 +85,6 @@ init([]) ->
                                   {stop, term(), term(), integer()} | 
                                   {stop, term(), term()}.
 
-handle_call({get_location, Package_ID}, _From, Db_PID) ->
-    case Package_ID =:= <<"">> of
-            true ->
-                {reply,{fail,empty_key},Db_PID};
-            _ ->
-                {reply, db_api:get_package(Package_ID,Db_PID),Db_PID}
-        end;
 handle_call(stop, _From, _State) ->
         {stop,normal,
                 replace_stopped,
@@ -110,12 +103,14 @@ handle_call(stop, _From, _State) ->
 
 %%TRANSFER
 % If either key is empty, it doesn't put_package
-handle_cast({transfer, <<"">>, _Location_ID}, Db_PID) ->
+handle_cast({update, <<"">>, _Latitude, _Longitude}, Db_PID) ->
     {noreply, Db_PID};
-handle_cast({transfer, _Package_ID, <<"">>}, Db_PID) ->
+handle_cast({update, _Location_ID, <<"">>, _Longitude}, Db_PID) ->
     {noreply, Db_PID};
-handle_cast({transfer, Package_ID, Location_ID}, Db_PID) ->
-    db_api:put_package(Package_ID, Location_ID, Db_PID),
+handle_cast({update, _Location_ID, _Latitude, <<"">>}, Db_PID) ->
+    {noreply, Db_PID};
+handle_cast({update, Location_ID, Latitude, Longitude}, Db_PID) ->
+    db_api:put_location(Location_ID, Latitude, Longitude, Db_PID),
     {noreply, Db_PID};
 
 handle_cast(_Msg, State) ->
@@ -194,25 +189,25 @@ transfer_test_() ->
      [
          % Add the packages into the mock database
          fun() ->
-             package_transfer:handle_cast({transfer, <<"4">>, <<"Detroit">>}, some_Db_PID),
-             package_transfer:handle_cast({transfer, <<"5">>, <<"Truck101">>}, some_Db_PID),
-             package_transfer:handle_cast({transfer, <<"6">>, <<"Chicago">>}, some_Db_PID),
-             package_transfer:handle_cast({transfer, <<"">>, <<"">>}, some_Db_PID),
+             location_update:handle_cast({transfer, <<"4">>, <<"Detroit">>}, some_Db_PID),
+             location_update:handle_cast({transfer, <<"5">>, <<"Truck101">>}, some_Db_PID),
+             location_update:handle_cast({transfer, <<"6">>, <<"Chicago">>}, some_Db_PID),
+             location_update:handle_cast({transfer, <<"">>, <<"">>}, some_Db_PID),
              ok
          end,
          
          % Use get location call function to check where the packages are. Only for unit testing!
          fun() ->
              ?assertEqual({reply, <<"Detroit">>, some_Db_PID},
-                          package_transfer:handle_call({get_location, <<"4">>}, some_from_pid, some_Db_PID))
+                          location_update:handle_call({get_location, <<"4">>}, some_from_pid, some_Db_PID))
          end,
          fun() ->
              ?assertEqual({reply, <<"Truck101">>, some_Db_PID},
-                          package_transfer:handle_call({get_location, <<"5">>}, some_from_pid, some_Db_PID))
+                          location_update:handle_call({get_location, <<"5">>}, some_from_pid, some_Db_PID))
          end,
         fun() ->
              ?assertEqual({reply, {fail, empty_key}, some_Db_PID},
-                          package_transfer:handle_call({get_location, <<"">>}, some_from_pid, some_Db_PID))
+                          location_update:handle_call({get_location, <<"">>}, some_from_pid, some_Db_PID))
          end
      ]}.
 

@@ -88,9 +88,10 @@ init([]) ->
 handle_call({get_loc, Package_ID}, _From, Db_PID) ->
     case Package_ID =:= <<"">> of
             true ->
-                {reply,{fail,empty_key},Db_PID};
+                {reply, fail, Db_PID};
             _ ->
-                {reply, db_api:get_status(Package_ID,Db_PID),Db_PID}
+                Location_ID = db_api:get_package(Package_ID,Db_PID),
+                {reply, db_api:get_location(Location_ID,Db_PID),Db_PID}
         end;
 handle_call(stop, _From, _State) ->
         {stop,normal,
@@ -166,12 +167,17 @@ transfer_test_() ->
      fun() ->
          % This setup fun is run once before the tests are run.
          meck:new(db_api),
-         meck:expect(db_api, deliver_package, fun(_Package_ID, _Pid) -> worked end),
-         meck:expect(db_api, get_status, fun(Package_ID, _Pid) ->
-             case Package_ID of
-                 <<"4">> -> <<"Delivered">>;
-                 <<"5">> -> <<"Delivered">>;
-                 <<"6">> -> <<"Delivered">>;
+         meck:expect(db_api, get_package, fun(Package_ID, _Pid) -> 
+            case Package_ID of
+                <<"4">> -> <<"Truck101">>;
+                <<"5">> -> <<"Plane201">>;
+                _ -> fail
+            end
+        end),
+         meck:expect(db_api, get_location, fun(Location_ID, _Pid) ->
+             case Location_ID of
+                 <<"Truck101">> -> {<<"67.2">>, <<"101.5">>};
+                 <<"Plane201">> -> {<<"87.3">>, <<"130.1">>};
                  _ -> fail
              end
          end),
@@ -182,31 +188,19 @@ transfer_test_() ->
          meck:unload(db_api)
      end,
      [
-         % Add the packages into the mock database
-         fun() ->
-             location_request:handle_cast({deliver, <<"4">>}, some_Db_PID),
-             location_request:handle_cast({deliver, <<"5">>}, some_Db_PID),
-             location_request:handle_cast({deliver, <<"6">>}, some_Db_PID),
-             location_request:handle_cast({deliver, <<"">>}, some_Db_PID),
-             ok
-         end,
          
          % Use get location call function to check where the packages are. Only for unit testing!
          fun() ->
-             ?assertEqual({reply, <<"Delivered">>, some_Db_PID},
-                          location_request:handle_call({status, <<"4">>}, some_from_pid, some_Db_PID))
+             ?assertEqual({reply, {<<"67.2">>, <<"101.5">>}, some_Db_PID},
+                          location_request:handle_call({get_loc, <<"4">>}, some_from_pid, some_Db_PID))
          end,
          fun() ->
-             ?assertEqual({reply, <<"Delivered">>, some_Db_PID},
-                          location_request:handle_call({status, <<"5">>}, some_from_pid, some_Db_PID))
-         end,
-         fun() ->
-             ?assertEqual({reply, <<"Delivered">>, some_Db_PID},
-                          location_request:handle_call({status, <<"6">>}, some_from_pid, some_Db_PID))
+             ?assertEqual({reply, {<<"87.3">>, <<"130.1">>}, some_Db_PID},
+                          location_request:handle_call({get_loc, <<"5">>}, some_from_pid, some_Db_PID))
          end,
         fun() ->
-             ?assertEqual({reply, {fail, empty_key}, some_Db_PID},
-                          location_request:handle_call({status, <<"">>}, some_from_pid, some_Db_PID))
+             ?assertEqual({reply, fail, some_Db_PID},
+                          location_request:handle_call({get_loc, <<"">>}, some_from_pid, some_Db_PID))
          end
      ]}.
 

@@ -7,5 +7,5 @@ put_package(Package_ID, Location_ID, Pid) ->
 	riakc_pb_socket:put(Pid, Request).
 
 get_package(Package_ID, Pid) ->
-	Request=riakc_obj:get_value(Package_ID),
-	riakc_pb_socket:get(Pid, Request).
+	{ok, FetchedObject} = riak:get(Pid, <<"packages">>, Package_ID),
+	riak_object:get_key(FetchedObject).

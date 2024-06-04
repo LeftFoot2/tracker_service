@@ -85,7 +85,7 @@ init([]) ->
                                   {stop, term(), term(), integer()} | 
                                   {stop, term(), term()}.
 
-handle_call({status, Package_ID}, _From, Db_PID) ->
+handle_call({get_loc, Package_ID}, _From, Db_PID) ->
     case Package_ID =:= <<"">> of
             true ->
                 {reply,{fail,empty_key},Db_PID};
@@ -107,14 +107,6 @@ handle_call(stop, _From, _State) ->
 -spec handle_cast(Msg::term(), State::term()) -> {noreply, term()} |
     {noreply, term(), integer()} |
     {stop, term(), term()}.
-
-%%DELIVERED
-% If key is empty, it doesn't deliver_package
-handle_cast({deliver, <<"">>}, Db_PID) ->
-    {noreply, Db_PID};
-handle_cast({deliver, Package_ID}, Db_PID) ->
-    db_api:deliver_package(Package_ID, Db_PID),
-    {noreply, Db_PID};
 
 handle_cast(_Msg, State) ->
     {noreply, State}.

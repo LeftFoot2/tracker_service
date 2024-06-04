@@ -7,6 +7,6 @@ deliver_package(Package_ID,Pid) ->
 	riakc_pb_socket:put(Pid, Package).
 
 get_status(Package_ID, Pid) ->
-	{ok, FetchedObject} = riak:get(Pid, <<"package">>, Package_ID),
+	{ok, FetchedObject} = riak:get(Pid, <<"packages">>, Package_ID),
 	%% Extract the value from the object
 	riak_object:get_key(FetchedObject).

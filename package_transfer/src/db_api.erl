@@ -3,7 +3,7 @@
 
 
 put_package(Package_ID, Location_ID, Pid) ->
-	Request=riakc_obj:new(<<"package">>, Package_ID, Location_ID),
+	Request=riakc_obj:new(<<"packages">>, Package_ID, Location_ID),
 	riakc_pb_socket:put(Pid, Request).
 
 get_package(Package_ID, Pid) ->

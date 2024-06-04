@@ -101,8 +101,8 @@ handle_call(stop, _From, _State) ->
     {noreply, term(), integer()} |
     {stop, term(), term()}.
 
-%%TRANSFER
-% If either key is empty, it doesn't put_package
+%%UPDATE
+% If either key is empty, it doesn't put_location
 handle_cast({update, <<"">>, _Latitude, _Longitude}, Db_PID) ->
     {noreply,failed,Db_PID};
 handle_cast({update, _Location_ID, <<"">>, _Longitude}, Db_PID) ->

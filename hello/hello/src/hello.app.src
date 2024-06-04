@@ -1,7 +1,7 @@
 {application, hello,
  [{description, "An OTP application"},
   {vsn, "0.1.0"},
-  {registered, []},
+  {registered, [hello_sup]},
   {mod, {hello_app, []}},
   {applications,
    [kernel,

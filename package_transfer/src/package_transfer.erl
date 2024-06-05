@@ -7,7 +7,7 @@
 
 
 %% API
--export([start/0,start/3,stop/0]).
+-export([start/0,start/3,stop/0, package_transfer_url_handler/1]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -59,6 +59,10 @@ stop() -> gen_server:call(?MODULE, stop).
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
+
+package_transfer_url_handler(Data) ->
+    {Package_ID, Location_ID} = Data,
+    package_transfer:handle_cast({transfer, Package_ID, Location_ID}, some_Db_PID).
 
 %%--------------------------------------------------------------------
 %% @private

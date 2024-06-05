@@ -13,7 +13,6 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
          terminate/2, code_change/3]).
 
-
 %%%===================================================================
 %%% API
 %%%===================================================================
@@ -60,8 +59,12 @@ stop() -> gen_server:call(?MODULE, stop).
 %%% gen_server callbacks
 %%%===================================================================
 
-package_transfer_url_handler(Data) ->
-    {Package_ID, Location_ID} = Data,
+package_transfer_url_handler(JsonData) ->
+    %% Parse the JSON data
+    {ok, ParsedData} = jsx:decode(JsonData, [return_maps]),
+    %% Extract Package_ID and Location_ID
+    Package_ID = maps:get(<<"Package_ID">>, ParsedData),
+    Location_ID = maps:get(<<"Location_ID">>, ParsedData),
     package_transfer:handle_cast({transfer, Package_ID, Location_ID}, some_Db_PID).
 
 %%--------------------------------------------------------------------

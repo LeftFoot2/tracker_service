@@ -24,7 +24,7 @@ start(_Type, _Args) ->
           {ok,_} = cowboy:start_tls(https_listener, [
                   		{port, 443},
 				{certfile, "tracker_business_logic/hello/hello/priv/ssl/fullchain.pem"},
-				{keyfile, PrivDir ++ "hello/hello/priv/ssl/privkey.pem"}
+				{keyfile, "tracker_business_logic/hello/hello/priv/ssl/privkey.pem"}
               		], #{env => #{dispatch => Dispatch}}),
 
         hello_sup:start_link().

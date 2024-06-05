@@ -23,8 +23,8 @@ start(_Type, _Args) ->
     	%tls stands for transport layer security
           {ok,_} = cowboy:start_tls(https_listener, [
                   		{port, 443},
-				{certfile, PrivDir ++ "fullchain.pem"},
-				{keyfile, PrivDir ++ "privkey.pem"}
+				{certfile, PrivDir ++ "ssl/fullchain.pem"},
+				{keyfile, PrivDir ++ "ssl/privkey.pem"}
               		], #{env => #{dispatch => Dispatch}}),
 
         hello_sup:start_link().

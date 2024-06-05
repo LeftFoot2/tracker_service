@@ -10,8 +10,7 @@
 -export([start/2, stop/1]).
 
 start(_Type, _Args) ->
-    PrivDir = code:priv_dir(tracker_business_logic),
-    io:format("Name %s", PrivDir),
+    
         Dispatch = cowboy_router:compile([
             {'_', [
                 {"/", default_page_h, []},
@@ -20,13 +19,12 @@ start(_Type, _Args) ->
             ]}
         ]),
 
-    	% PrivDir = code:priv_dir(tracker_business_logic),
-        
+    	PrivDir = code:priv_dir(hello),
     	%tls stands for transport layer security
           {ok,_} = cowboy:start_tls(https_listener, [
                   		{port, 443},
-				{certfile, PrivDir},
-				{keyfile, PrivDir}
+				{certfile, PrivDir ++ "/ssl/fullchain.pem"},
+				{keyfile, PrivDir ++ "/ssl/privkey.pem"}
               		], #{env => #{dispatch => Dispatch}}),
 
         hello_sup:start_link().

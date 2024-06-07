@@ -9,12 +9,12 @@ init(Req0, Opts) ->
         <<"POST">> ->
             {ok, Body, Req2} = cowboy_req:read_body(Req1),
             io:format("Received body: ~s~n", [Body]),
-            try jiffy:decode(Body, [return_maps]) of
+            try jsx:decode(Body, [return_maps]) of
                 #{<<"name">> := Name} ->
                     io:format("Extracted name: ~p~n", [Name]),
                     Req3 = cowboy_req:reply(200,
                         #{<<"content-type">> => <<"text/plain; charset=utf-8">>},
-                        Name,  % Assuming Name is a binary
+                        Name,
                         Req2),
                     {ok, Req3, Opts}
             catch

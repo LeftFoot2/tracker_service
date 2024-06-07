@@ -1,3 +1,4 @@
+%% @JSON Test handler
 -module(json_handler).
 
 -export([init/2]).

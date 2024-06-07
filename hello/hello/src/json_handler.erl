@@ -3,6 +3,22 @@
 
 -export([init/2]).
 
+init(Req0, Opts) ->
+        Req = cowboy_req:reply(200, #{
+                <<"content-type">> => <<"text/plain">>
+        }, "Hello world!", Req0),
+        {ok, Req, Opts}.
+
+
+
+
+
+
+
+
+
+
+
 % init(Req0, Opts) ->
 %     {Method, Req1} = cowboy_req:method(Req0),
 %     case Method of
@@ -37,9 +53,3 @@
 %                 Req1),
 %             {ok, Req2, Opts}
 %     end.
-
-init(Req0, Opts) ->
-        Req = cowboy_req:reply(200, #{
-                <<"content-type">> => <<"text/plain">>
-        }, "Hello world!", Req0),
-        {ok, Req, Opts}.

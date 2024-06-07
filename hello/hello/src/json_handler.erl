@@ -4,22 +4,25 @@
 
 init(Req0, Opts) ->
     {Method, Req1} = cowboy_req:method(Req0),
+    io:format("Received request with method: ~p~n", [Method]),
     case Method of
         <<"POST">> ->
             {ok, Body, Req2} = cowboy_req:read_body(Req1),
-            try jsx:decode(Body, [return_maps]) of
+            io:format("Received body: ~s~n", [Body]),
+            try jiffy:decode(Body, [return_maps]) of
                 #{<<"name">> := Name} ->
-                    % Convert binary "Name" to list for response (if necessary)
+                    io:format("Extracted name: ~p~n", [Name]),
                     Req3 = cowboy_req:reply(200,
                         #{<<"content-type">> => <<"text/plain; charset=utf-8">>},
-                        Name,  % Send back the name directly
+                        Name,  % Assuming Name is a binary
                         Req2),
                     {ok, Req3, Opts}
             catch
-                _:_ ->
-                    Req3 = cowboy_req:reply(400,
+                _:Error ->
+                    io:format("Error decoding JSON or sending response: ~p~n", [Error]),
+                    Req3 = cowboy_req:reply(500,
                         #{<<"content-type">> => <<"text/plain; charset=utf-8">>},
-                        "Invalid JSON data.",
+                        "Internal Server Error",
                         Req2),
                     {ok, Req3, Opts}
             end;

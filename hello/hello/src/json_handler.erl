@@ -9,7 +9,7 @@ init(Req0, Opts) ->
         <<"POST">> ->
             {ok, Body, Req2} = cowboy_req:read_body(Req1),
             io:format("Received body: ~s~n", [Body]),
-            try jsx:decode(Body, [return_maps]) of
+            try jiffy:decode(Body, [return_maps]) of
                 #{<<"name">> := Name} ->
                     io:format("Extracted name: ~p~n", [Name]),
                     Req3 = cowboy_req:reply(200,

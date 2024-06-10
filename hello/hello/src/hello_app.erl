@@ -14,8 +14,7 @@ start(_Type, _Args) ->
         Dispatch = cowboy_router:compile([
             {'_', [
                 {"/", default_page_h, []},
-                {"/package_transferred", package_transfer_page, []},
-                {"/json_handler", json_handler, []}
+                {"/package_transferred", package_transfer_page, []}
                 
             ]}
         ]),

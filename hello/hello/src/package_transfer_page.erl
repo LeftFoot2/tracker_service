@@ -11,7 +11,7 @@ init(Req0, Opts) ->
 %         {ok, Req, Opts},
 
 %     % Attempt to decode the JSON data
-%      jsx:decode(Data)
+%      case jsx:decode(Data) of
 %         {error, _Reason} ->
 %             % Handle JSON decoding error
 %             Response = cowboy_req:reply(400, #{<<"content-type">> => <<"application/json">>}, jsx:encode(#{error => "Invalid JSON data"}), Req0),

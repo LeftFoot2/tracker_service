@@ -6,7 +6,7 @@ init(Req0, Opts) ->
     % Read the request body
     {ok, Data, _} = cowboy_req:read_body(Req0),
 
-    io:format(Data),
+    io:format("hello caht"),
 
     Req = cowboy_req:reply(200, #{
         <<"content-type">> => <<"text/plain">>}, "Hello world this is exciting! Test", Req0),

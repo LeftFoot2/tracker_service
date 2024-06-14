@@ -6,6 +6,10 @@ init(Req0, Opts) ->
     {ok, Data, _} = cowboy_req:read_body(Req0),  % Read the request body
     [Package_ID, Location_ID] = jsx:decode(Data),  % Decode the JSON data
 
+
+    Req = cowboy_req:reply(200, #{<<"content-type">> => <<"text/plain">>}, "Hello world this is exciting! Test", Req0),
+    {ok, Req, Opts},
+
     % Echo back the received data
     EchoedData = jsx:encode(#{package_id => Package_ID, location_id => Location_ID}),
 

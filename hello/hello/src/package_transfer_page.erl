@@ -3,28 +3,38 @@
 -export([init/2]).
 
 init(Req0, Opts) ->
-    {ok, Data, _} = cowboy_req:read_body(Req0),  % Read the request body
-    [Package_ID, Location_ID] = jsx:decode(Data),  % Decode the JSON data
+    % Read the request body
+    {ok, Data, _} = cowboy_req:read_body(Req0),
+
+    Req = cowboy_req:reply(200, #{
+        <<"content-type">> => <<"text/plain">>}, "Hello world this is exciting! Test", Req0),
+        {ok, Req, Opts},
+
+    % Attempt to decode the JSON data
+    case jsx:decode(Data) of
+        {error, _Reason} ->
+            % Handle JSON decoding error
+            Response = cowboy_req:reply(400, #{<<"content-type">> => <<"application/json">>}, jsx:encode(#{error => "Invalid JSON data"}), Req0),
+            {ok, Response, Opts};
+        {ok, [Package_ID, Location_ID]} ->
+            % Echo back the received data
+            EchoedData = #{package_id => Package_ID, location_id => Location_ID},
+
+            % Perform the ERPC call
+            Result = erpc:call('deliveryman@bl.thomasjamiesonprograms.com', business_logic, package_transfer_url_handler, [Package_ID, Location_ID]),
+
+            % Encode the ERPC result to JSON
+            EncodedResult = jsx:encode(Result),
+
+            % Combine the echoed data and the result
+            CombinedResponse = jsx:encode(#{echo => EchoedData, result => jsx:decode(EncodedResult)}),
+
+            % Send the response
+            Response = cowboy_req:reply(200, #{<<"content-type">> => <<"application/json">>}, CombinedResponse, Req0),
+            {ok, Response, Opts}
+    end.
 
 
-    Req = cowboy_req:reply(200, #{<<"content-type">> => <<"text/plain">>}, "Hello world this is exciting! Test", Req0),
-    {ok, Req, Opts},
-
-    % Echo back the received data
-    EchoedData = jsx:encode(#{package_id => Package_ID, location_id => Location_ID}),
-
-    % Perform the ERPC call (this part is unchanged)
-    Result = erpc:call('deliveryman@bl.thomasjamiesonprograms.com', business_logic, package_transfer_url_handler, [Package_ID, Location_ID]),
-
-    % Encode the ERPC result to JSON
-    EncodedResult = jsx:encode(Result),
-
-    % Combine the echoed data and the result
-    CombinedResponse = jsx:encode(#{echo => jsx:decode(EchoedData), result => jsx:decode(EncodedResult)}),
-
-    % Send the response
-    Response = cowboy_req:reply(200, #{<<"content-type">> => <<"text/json">>}, CombinedResponse, Req0),
-    {ok, Response, Opts}.
 
 
 

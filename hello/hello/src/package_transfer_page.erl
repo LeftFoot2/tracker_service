@@ -61,10 +61,10 @@ init(Req0, Opts) ->
         {ok,Data,_} = cowboy_req:read_body(Req0),
         % it is expected that the data consists of one quoted-string name
         % in an array.
-        Req = cowboy_req:reply(200, 
-                #{<<"content-type">> => <<"text/plain">>},
-                "Hello world this is exciting! Test", Req0),
-        {ok, Req, Opts},
+        % Req = cowboy_req:reply(200, 
+        %         #{<<"content-type">> => <<"text/plain">>},
+        %         "Hello world this is exciting! Test", Req0),
+        % {ok, Req, Opts},
         
         [{<<"Package_ID">>,Package_ID},{<<"Location_ID">>,Location_ID}]  = jsx:decode(Data),
         [<<"35">>,<<"14">>] = [Package_ID,Location_ID],

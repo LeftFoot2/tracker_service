@@ -80,6 +80,6 @@ init(Req0, Opts) ->
 
         Response = cowboy_req:reply(200,
                 #{<<"content-type">> => <<"text/json">>},
-                "cat man", Req0),
+                Encoded_message, Req0),
         {ok, Response, Opts}.
 

@@ -6,7 +6,7 @@ init(Req0, Opts) ->
         {ok,Data,_} = cowboy_req:read_body(Req0),
 
         [{<<"Location_ID">>,Location_ID}, {<<"Coordinates">>,{Latitude, Longitude}}] = jsx:decode(Data),
-        Result = erpc:call('deliveryman@bl.thomasjamiesonprograms.com', business_logic, get_location, [Location_ID,{Latitude,Longitude}]), 
+        Result = erpc:call('deliveryman@bl.thomasjamiesonprograms.com', business_logic, get_lat_long, [Location_ID,{Latitude,Longitude}]), 
         
         Encoded_message = jsx:encode(Result),
 

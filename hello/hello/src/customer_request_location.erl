@@ -19,7 +19,7 @@ init(Req0, Opts) ->
             %         {error,notfound} -> "no such person";
             %         Friends -> Friends
             % end,
-            
+            {ok,[<<"1">>,<<"2">>]} = Result,
     Encoded_message = jsx:encode(Result),
     %io:format("~p~n",[get_friends_server:get_friends_of(Name)]),
 

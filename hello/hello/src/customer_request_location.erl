@@ -13,7 +13,7 @@ init(Req0, Opts) ->
     
     [{<<"Package_ID">>,Package_ID}]  = jsx:decode(Data),
     % test [<<"35">>,<<"14">>] = [Package_ID,Location_ID],
-    Result = erpc:call('deliveryman@bl.thomasjamiesonprograms.com', business_logic, get_location, [Package_ID]), 
+    Result = erpc:call('deliveryman@bl.thomasjamiesonprograms.com', business_logic, get_location, [Package_ID]),
     
     %get_friends_server:get_friends_of(Package_ID) of
             %         {error,notfound} -> "no such person";

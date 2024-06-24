@@ -19,8 +19,8 @@ init(Req0, Opts) ->
             %         {error,notfound} -> "no such person";
             %         Friends -> Friends
             % end,
-            {ok,[<<"1">>,<<"2">>]} = Result,
-    Encoded_message = jsx:encode(Result),
+        {ok,Lat_Long} = Result,
+    Encoded_message = jsx:encode(Lat_Long),
     %io:format("~p~n",[get_friends_server:get_friends_of(Name)]),
 
     Response = cowboy_req:reply(200,

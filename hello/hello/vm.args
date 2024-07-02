@@ -1,0 +1,5 @@
+## Increase maximum number of file descriptors (if needed)
+-env ERL_MAX_PORTS 10000000
+
+## SMP (Symmetric Multi-Processing) auto-detection
+-smp auto

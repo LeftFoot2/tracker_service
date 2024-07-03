@@ -1,10 +1,10 @@
 %%%-------------------------------------------------------------------
 %% @doc 
-%% hello top level supervisor.
+%% tracker_service top level supervisor.
 %% @end
 %%%-------------------------------------------------------------------
 
--module(hello_sup).
+-module(tracker_service_sup).
 
 -behaviour(supervisor).
 

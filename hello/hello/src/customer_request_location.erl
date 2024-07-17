@@ -11,7 +11,7 @@ init(Req0, Opts) ->
     %         "Hello world this is exciting! Test", Req0),
     % {ok, Req, Opts},
     
-    [<<Package_ID>>]  = jsx:decode(Data),
+    ["package_1"]  = jsx:decode(Data),
     % test [<<"35">>,<<"14">>] = [Package_ID,Location_ID],
     Result = erpc:call('deliveryman@bl.thomasjamiesonprograms.com', business_logic, location_request, [Package_ID]),
     
